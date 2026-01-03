@@ -117,6 +117,11 @@ export default function AdminLogin() {
             <p className="font-medium mb-2">Demo Admin Account:</p>
             <p>Email: admin@example.com</p>
             <p>Password: admin123</p>
+            {connectionStatus && (
+              <p className="mt-3 pt-3 border-t border-blue-200 text-xs">
+                Supabase: {connectionStatus}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
