@@ -106,10 +106,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
             return (
-              <a
+              <Link
                 key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                to={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
                   isActive
                     ? "bg-blue-600 text-white"
                     : "text-gray-400 hover:bg-gray-800 hover:text-white"
@@ -117,7 +117,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Icon className="w-5 h-5" />
                 {sidebarOpen && <span>{item.label}</span>}
-              </a>
+              </Link>
             );
           })}
         </nav>
