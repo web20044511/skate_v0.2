@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,24 +17,9 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, isAdmin, logout, isLoading } = useAuth();
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
 
   const navigationItems = [
     {
@@ -96,10 +81,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
             return (
-              <a
+              <Link
                 key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                to={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
                   isActive
                     ? "bg-blue-600 text-white"
                     : "text-gray-400 hover:bg-gray-800 hover:text-white"
@@ -107,7 +92,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Icon className="w-5 h-5" />
                 {sidebarOpen && <span>{item.label}</span>}
-              </a>
+              </Link>
             );
           })}
         </nav>

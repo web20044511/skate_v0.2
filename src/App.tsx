@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import ProtectedAdminRoute from "@/components/ProtectedAdminRoute";
 import Index from "./pages/Index";
 import Store from "./pages/Store";
 import ProductPage from "./pages/ProductPage";
@@ -43,10 +44,38 @@ const App = () => (
               <Route path="/orders" element={<Orders />} />
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/inventory" element={<AdminInventory />} />
-              <Route path="/admin/memberships" element={<AdminMemberships />} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminDashboard />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/orders"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminOrders />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/inventory"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminInventory />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/memberships"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminMemberships />
+                  </ProtectedAdminRoute>
+                }
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

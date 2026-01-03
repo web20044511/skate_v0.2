@@ -24,6 +24,14 @@ export default function AdminLogin() {
     checkConnection();
   }, []);
 
+  // Auto-redirect when user becomes admin
+  useEffect(() => {
+    if (user && isAdmin && !isLoading) {
+      console.log("[AdminLogin] User is admin, redirecting to dashboard");
+      navigate("/admin/dashboard", { replace: true });
+    }
+  }, [user, isAdmin, isLoading, navigate]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -35,10 +43,6 @@ export default function AdminLogin() {
     );
   }
 
-  if (user && isAdmin) {
-    return <Navigate to="/admin/dashboard" replace />;
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("[AdminLogin] Form submitted");
@@ -47,18 +51,13 @@ export default function AdminLogin() {
     try {
       console.log("[AdminLogin] Calling login function");
       await login(email, password);
-      console.log("[AdminLogin] Login successful, redirecting");
-
-      // Check if user is admin after login
-      setTimeout(() => {
-        navigate("/admin/dashboard");
-      }, 500);
+      console.log("[AdminLogin] Login successful");
+      // The auth state change will trigger the redirect above
     } catch (error: any) {
       console.error("[AdminLogin] Login error:", error);
       const errorMsg = error?.message || "Failed to sign in. Please try again.";
       console.error("[AdminLogin] Error message:", errorMsg);
       toast.error(errorMsg);
-    } finally {
       setIsSubmitting(false);
     }
   };

@@ -34,23 +34,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuth = useCallback(async () => {
-    const timeoutId = setTimeout(() => {
-      console.warn("Auth check timeout - moving forward");
-      setIsLoading(false);
-    }, 5000); // 5 second timeout
+  const fetchProfileWithTimeout = useCallback(async (userId: string, timeoutMs = 8000) => {
+    try {
+      const profilePromise = profileService.getById(userId);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Profile fetch timeout")), timeoutMs)
+      );
 
+      return await Promise.race([profilePromise, timeoutPromise]);
+    } catch (error) {
+      console.error("[AUTH] Profile fetch failed:", error);
+      throw error;
+    }
+  }, []);
+
+  const checkAuth = useCallback(async () => {
     try {
       const {
         data: { user: authUser },
       } = await supabase.auth.getUser();
 
-      clearTimeout(timeoutId);
-
       if (authUser) {
         try {
           console.log("[AUTH] Fetching profile for user:", authUser.id);
-          const profile = await profileService.getById(authUser.id);
+          const profile = await fetchProfileWithTimeout(authUser.id, 8000);
 
           console.log("[AUTH] Profile loaded successfully");
           setUser({
@@ -58,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: authUser.email || profile.email,
           });
         } catch (profileError) {
-          console.error("Profile fetch error:", profileError);
+          console.error("[AUTH] Profile fetch error:", profileError);
           console.log("[AUTH] Using fallback user object due to profile fetch failure");
           // Fallback: create a minimal user object if profile fetch fails
           setUser({
@@ -75,13 +82,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
       }
     } catch (error) {
-      console.error("Auth check error:", error);
+      console.error("[AUTH] Auth check error:", error);
       setUser(null);
     } finally {
-      clearTimeout(timeoutId);
       setIsLoading(false);
     }
-  }, []);
+  }, [fetchProfileWithTimeout]);
 
   useEffect(() => {
     checkAuth();
@@ -94,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         try {
           console.log("[AUTH] Fetching profile for user:", session.user.id);
-          const profile = await profileService.getById(session.user.id);
+          const profile = await fetchProfileWithTimeout(session.user.id, 8000);
 
           console.log("[AUTH] Profile loaded:", profile);
           setUser({
@@ -123,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription?.unsubscribe();
     };
-  }, [checkAuth]);
+  }, [checkAuth, fetchProfileWithTimeout]);
 
   const login = async (email: string, password: string) => {
     console.log("[AUTH] Login attempt with email:", email);
@@ -145,7 +151,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.user) {
         try {
           console.log("[AUTH] Fetching profile for user:", data.user.id);
-          const profile = await profileService.getById(data.user.id);
+          const profile = await fetchProfileWithTimeout(data.user.id, 8000);
 
           console.log("[AUTH] Profile fetched:", profile);
           setUser({
@@ -204,7 +210,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (data.user) {
         try {
-          // Create profile with timeout (5 seconds)
+          // Create profile with timeout
           console.log("[AUTH] Creating profile for user:", data.user.id);
 
           const profilePromise = profileService.create({
@@ -215,11 +221,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             avatar_url: null,
           });
 
-          const profileTimeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Profile creation timeout")), 5000)
-          );
-
-          const profile = await Promise.race([profilePromise, profileTimeoutPromise]);
+          const profile = await Promise.race([
+            profilePromise,
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("Profile creation timeout")), 8000)
+            ),
+          ]);
 
           console.log("[AUTH] Profile created successfully");
           setUser({
