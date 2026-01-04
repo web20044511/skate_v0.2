@@ -87,6 +87,20 @@ export default function AdminInventory() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingProduct(null);
+    setSelectedFile(null);
+    setPreviewUrl("");
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
