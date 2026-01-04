@@ -85,7 +85,7 @@ const CartDrawer = () => {
                         </button>
                       </div>
                       <span className="font-bold text-foreground text-right">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        ₹{(item.product.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   </div>
