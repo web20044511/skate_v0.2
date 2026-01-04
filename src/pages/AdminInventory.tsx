@@ -343,14 +343,20 @@ export default function AdminInventory() {
                   <Button
                     type="submit"
                     className="flex-1"
+                    disabled={isUploading}
                   >
-                    {editingProduct ? "Update Product" : "Create Product"}
+                    {isUploading
+                      ? "Uploading..."
+                      : editingProduct
+                      ? "Update Product"
+                      : "Create Product"}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleCloseDialog}
                     className="flex-1"
+                    disabled={isUploading}
                   >
                     Cancel
                   </Button>
