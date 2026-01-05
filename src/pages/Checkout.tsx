@@ -321,10 +321,49 @@ export default function Checkout() {
                       </div>
                     </div>
 
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Payment Method *
+                      </label>
+                      {isLoadingPaymentMethods ? (
+                        <div className="flex items-center justify-center py-6">
+                          <div className="text-center">
+                            <div className="inline-block mb-2 h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                            <p className="text-sm text-gray-600">Loading payment methods...</p>
+                          </div>
+                        </div>
+                      ) : paymentMethods.length === 0 ? (
+                        <div className="px-3 py-2 border border-red-300 rounded-md bg-red-50">
+                          <p className="text-sm text-red-700">
+                            No payment methods available. Please contact support.
+                          </p>
+                        </div>
+                      ) : (
+                        <select
+                          value={formData.paymentMethod}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              paymentMethod: e.target.value,
+                            })
+                          }
+                          disabled={isProcessing || paymentMethods.length === 0}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                          required
+                        >
+                          {paymentMethods.map((method) => (
+                            <option key={method.id} value={method.provider}>
+                              {method.provider.toUpperCase()}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={isProcessing}
+                      disabled={isProcessing || paymentMethods.length === 0}
                     >
                       {isProcessing ? "Processing..." : "Continue to Payment"}
                     </Button>
