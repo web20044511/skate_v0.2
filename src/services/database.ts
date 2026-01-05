@@ -378,3 +378,66 @@ export const profileService = {
     return data as Profile;
   },
 };
+
+// ===== PAYMENT OPTIONS =====
+export const paymentOptionsService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from("payment_options")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data as PaymentOption[];
+  },
+
+  async getEnabled() {
+    const { data, error } = await supabase
+      .from("payment_options")
+      .select("*")
+      .eq("is_enabled", true)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data as PaymentOption[];
+  },
+
+  async getByProvider(provider: PaymentOption["provider"]) {
+    const { data, error } = await supabase
+      .from("payment_options")
+      .select("*")
+      .eq("provider", provider)
+      .single();
+    if (error) throw error;
+    return data as PaymentOption;
+  },
+
+  async create(
+    paymentOption: Omit<PaymentOption, "id" | "created_at" | "updated_at">
+  ) {
+    const { data, error } = await supabase
+      .from("payment_options")
+      .insert([paymentOption])
+      .select()
+      .single();
+    if (error) throw error;
+    return data as PaymentOption;
+  },
+
+  async update(id: number, paymentOption: Partial<PaymentOption>) {
+    const { data, error } = await supabase
+      .from("payment_options")
+      .update(paymentOption)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as PaymentOption;
+  },
+
+  async delete(id: number) {
+    const { error } = await supabase
+      .from("payment_options")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+  },
+};
