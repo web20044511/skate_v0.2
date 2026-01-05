@@ -1,9 +1,10 @@
 import { supabase } from "@/lib/supabase";
+import { paymentOptionsService } from "@/services/database";
 
-// PayU Configuration - You'll need to update these with your actual credentials
-const PAYU_KEY = import.meta.env.VITE_PAYU_KEY || "YOUR_PAYU_KEY";
-const PAYU_SALT = import.meta.env.VITE_PAYU_SALT || "YOUR_PAYU_SALT";
-const PAYU_BASE_URL =
+// Default PayU Configuration - Fallback if no payment option is configured
+const DEFAULT_PAYU_KEY = import.meta.env.VITE_PAYU_KEY || "YOUR_PAYU_KEY";
+const DEFAULT_PAYU_SALT = import.meta.env.VITE_PAYU_SALT || "YOUR_PAYU_SALT";
+const DEFAULT_PAYU_BASE_URL =
   import.meta.env.VITE_PAYU_BASE_URL || "https://secure.payu.in";
 
 export interface PaymentRequest {
@@ -17,6 +18,7 @@ export interface PaymentRequest {
   state: string;
   zipcode: string;
   description: string;
+  paymentMethod: string;
 }
 
 export interface PaymentResponse {
