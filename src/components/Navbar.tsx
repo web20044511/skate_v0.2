@@ -160,14 +160,22 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <div className="flex items-center gap-2 px-4 pt-4 border-t border-border/20 mt-2">
+              <div className="flex flex-col gap-2 px-4 pt-4 border-t border-border/20 mt-2">
                 {isAuthenticated ? (
-                  <Button variant="outline" className="flex-1" onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </Button>
+                  <>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/orders" onClick={() => setIsOpen(false)}>
+                        <Package className="w-4 h-4 mr-2" />
+                        My Orders
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={handleLogout}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
                 ) : (
-                  <Button variant="gold" className="flex-1" asChild>
+                  <Button variant="gold" className="w-full" asChild>
                     <Link to="/auth" onClick={() => setIsOpen(false)}>
                       Sign In
                     </Link>
