@@ -97,15 +97,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const profile = await fetchProfileWithTimeout(authUser.id, 8000);
 
           console.log("[AUTH] Profile loaded successfully");
-          setUser({
+          const newUser = {
             ...profile,
             email: authUser.email || profile.email,
-          });
+          };
+          setUser(newUser);
+
+          // Start inactivity timer for admins on page load
+          if (newUser.role === "admin") {
+            resetInactivityTimer();
+          }
         } catch (profileError) {
           console.error("[AUTH] Profile fetch error:", profileError);
           console.log("[AUTH] Using fallback user object due to profile fetch failure");
           // Fallback: create a minimal user object if profile fetch fails
-          setUser({
+          const fallbackUser = {
             id: authUser.id,
             email: authUser.email || "",
             role: "customer",
@@ -113,7 +119,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             avatar_url: null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          });
+          };
+          setUser(fallbackUser);
+
+          // Start inactivity timer for admins
+          if (fallbackUser.role === "admin") {
+            resetInactivityTimer();
+          }
         }
       } else {
         setUser(null);
@@ -124,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchProfileWithTimeout]);
+  }, [fetchProfileWithTimeout, resetInactivityTimer]);
 
   useEffect(() => {
     checkAuth();
