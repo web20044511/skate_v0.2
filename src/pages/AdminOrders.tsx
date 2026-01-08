@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/select";
 import { orderService } from "@/services/database";
 import { Order } from "@/types/database";
-import { Eye, Download } from "lucide-react";
+import { Eye, Download, FileText, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { receiptService, ReceiptData } from "@/services/receipt";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<any[]>([]);
