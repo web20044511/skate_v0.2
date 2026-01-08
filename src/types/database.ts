@@ -34,6 +34,9 @@ export interface Order {
   payu_transaction_id: string | null;
   shipping_address: Record<string, any> | null;
   notes: string | null;
+  customer_email: string | null;
+  customer_phone: string | null;
+  status_comment: string | null;
   created_at: string;
   updated_at: string;
 }
