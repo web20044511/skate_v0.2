@@ -218,7 +218,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.user) {
         try {
           console.log("[AUTH] Fetching profile for user:", data.user.id);
-          const profile = await fetchProfileWithTimeout(data.user.id, 8000);
+          const profile = await fetchProfileWithTimeout(data.user.id, 15000);
 
           console.log("[AUTH] Profile fetched:", profile);
           setUser({
