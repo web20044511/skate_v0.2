@@ -360,15 +360,35 @@ export default function AdminOrders() {
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
             onClick={() => setSelectedOrder(null)}
           >
-            <Card className="w-full max-w-2xl max-h-96 overflow-y-auto">
-              <CardHeader className="flex items-center justify-between">
+            <Card className="w-full max-w-2xl max-h-96 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <CardHeader className="flex items-center justify-between border-b">
                 <CardTitle>Order #{selectedOrder.order_number}</CardTitle>
-                <button
-                  onClick={() => setSelectedOrder(null)}
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDownloadReceipt(selectedOrder)}
+                    disabled={isGeneratingReceipt}
+                  >
+                    <FileText className="w-4 h-4 mr-1" />
+                    Download
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePrintReceipt(selectedOrder)}
+                    disabled={isGeneratingReceipt}
+                  >
+                    <Printer className="w-4 h-4 mr-1" />
+                    Print
+                  </Button>
+                  <button
+                    onClick={() => setSelectedOrder(null)}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    ✕
+                  </button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
