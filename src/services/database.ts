@@ -149,14 +149,22 @@ export const orderService = {
   },
 
   async update(id: number, order: Partial<Order>) {
-    const { data, error } = await supabase
-      .from("orders")
-      .update(order)
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as Order;
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .update(order)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) {
+        console.error("[DATABASE] Order update error:", error.message, error);
+        throw new Error(error.message || "Failed to update order");
+      }
+      return data as Order;
+    } catch (err) {
+      console.error("[DATABASE] Order update failed:", err);
+      throw err;
+    }
   },
 
   async updateStatus(id: number, status: Order["status"]) {
