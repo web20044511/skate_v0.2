@@ -74,8 +74,9 @@ export default function AdminOrders() {
       setStatusComment("");
       loadOrders();
     } catch (error) {
-      console.error("Error updating order:", error);
-      toast.error("Failed to update order status");
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("Error updating order:", errorMessage, error);
+      toast.error(`Failed to update order status: ${errorMessage}`);
     } finally {
       setIsUpdatingStatus(false);
     }
