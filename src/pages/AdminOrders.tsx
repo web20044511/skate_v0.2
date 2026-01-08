@@ -458,6 +458,70 @@ export default function AdminOrders() {
                     </p>
                   </div>
                 )}
+
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold mb-3">Update Order Status</h3>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">New Status</label>
+                      <Select
+                        value={selectedOrder.status}
+                        onValueChange={(value) => {
+                          setSelectedOrder({ ...selectedOrder, status: value });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="confirmed">Confirmed</SelectItem>
+                          <SelectItem value="processing">Processing</SelectItem>
+                          <SelectItem value="shipped">Shipped</SelectItem>
+                          <SelectItem value="delivered">Delivered</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Status Comment/Description</label>
+                      <textarea
+                        value={statusComment}
+                        onChange={(e) => setStatusComment(e.target.value)}
+                        placeholder="Add a comment about the status change (optional)"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        rows={3}
+                      />
+                      {selectedOrder.status_comment && (
+                        <p className="text-xs text-gray-600 mt-2">
+                          <strong>Previous comment:</strong> {selectedOrder.status_comment}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() =>
+                          updateOrderStatus(
+                            selectedOrder.id,
+                            selectedOrder.status as Order["status"],
+                            statusComment
+                          )
+                        }
+                        disabled={isUpdatingStatus}
+                        className="flex-1"
+                      >
+                        {isUpdatingStatus ? "Updating..." : "Update Status"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setSelectedOrder(null)}
+                        className="flex-1"
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
