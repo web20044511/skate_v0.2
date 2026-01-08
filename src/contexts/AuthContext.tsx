@@ -291,7 +291,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const profile = await Promise.race([
             profilePromise,
             new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("Profile creation timeout")), 8000)
+              setTimeout(() => reject(new Error("Profile creation timeout")), 15000)
             ),
           ]);
 
