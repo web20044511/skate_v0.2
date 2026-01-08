@@ -42,6 +42,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const resetInactivityTimer = useCallback(() => {
+    // Clear existing timers
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current);
+    }
+
+    // Set warning timer (show warning 5 minutes before logout)
+    warningTimerRef.current = setTimeout(() => {
+      console.log("[AUTH] Session about to expire due to inactivity");
+      // You can add a toast notification here if needed
+    }, SESSION_WARNING_MS);
+
+    // Set logout timer
+    inactivityTimerRef.current = setTimeout(async () => {
+      console.log("[AUTH] Logging out due to inactivity");
+      await supabase.auth.signOut();
+      setUser(null);
+    }, SESSION_TIMEOUT_MS);
+  }, []);
+
+  const handleUserActivity = useCallback(() => {
+    // Reset timer on any user activity (only for admins)
+    if (user?.role === "admin") {
+      resetInactivityTimer();
+    }
+  }, [user?.role, resetInactivityTimer]);
+
   const fetchProfileWithTimeout = useCallback(async (userId: string, timeoutMs = 8000) => {
     try {
       const profilePromise = profileService.getById(userId);
