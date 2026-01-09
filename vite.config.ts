@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: 'jpskating.onrender.com'
+    allowedHosts: "jpskating.onrender.com"
   },
   plugins: [react(), mode === "production" && componentTagger()].filter(Boolean),
   resolve: {
