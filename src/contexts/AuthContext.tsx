@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user?.role, resetInactivityTimer]);
 
-  const fetchProfileWithTimeout = useCallback(async (userId: string, timeoutMs = 15000) => {
+  const fetchProfileWithTimeout = useCallback(async (userId: string, timeoutMs = 30000) => {
     try {
       const profilePromise = profileService.getById(userId);
       const timeoutPromise = new Promise<never>((_, reject) =>
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return await Promise.race([profilePromise, timeoutPromise]);
     } catch (error) {
-      console.error("[AUTH] Profile fetch failed:", error);
+      console.debug("[AUTH] Profile fetch timeout or error (will use fallback):", error);
       throw error;
     }
   }, []);
