@@ -79,6 +79,8 @@ export default function AdminMemberships() {
         price: membership.price,
         duration_days: membership.duration_days,
         benefits: (membership.benefits as any)?.list || [],
+        icon: membership.icon || "Star",
+        color: membership.color || "silver",
       });
     } else {
       setEditingMembership(null);
@@ -88,6 +90,8 @@ export default function AdminMemberships() {
         price: 0,
         duration_days: 30,
         benefits: [],
+        icon: "Star",
+        color: "silver",
       });
     }
     setNewBenefit("");
