@@ -48,7 +48,7 @@ const testimonials = [{
   name: "Coach Sarah Williams",
   role: "National Team Coach",
   image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face",
-  quote: "From training sessions to competition day, JP Skating products perform at the highest level. Highly recommended for serious skaters.",
+  quote: "From training sessions to competition day, our products perform at the highest level. Highly recommended for serious skaters.",
   rating: 5
 }];
 const partners = [{
