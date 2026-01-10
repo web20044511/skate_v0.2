@@ -275,7 +275,7 @@ export const paymentService = {
         })
         .eq("transaction_id", txnid);
 
-      // If payment is successful, update order
+      // If payment is successful, update order and process memberships
       if (payuResponse.status === "success") {
         const { data: transaction } = await supabase
           .from("payment_transactions")
@@ -284,6 +284,13 @@ export const paymentService = {
           .single();
 
         if (transaction) {
+          // Get order details to get user_id
+          const { data: order } = await supabase
+            .from("orders")
+            .select("user_id")
+            .eq("id", transaction.order_id)
+            .single();
+
           await supabase
             .from("orders")
             .update({
@@ -292,6 +299,11 @@ export const paymentService = {
               status: "confirmed",
             })
             .eq("id", transaction.order_id);
+
+          // Process memberships if user is authenticated
+          if (order?.user_id) {
+            await processMembershipsForOrder(transaction.order_id, order.user_id);
+          }
         }
       }
 
