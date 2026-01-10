@@ -142,7 +142,11 @@ export default function Checkout() {
       let orderNotes = formData.notes;
       let membershipIds: number[] = [];
       if (membershipItems.length > 0) {
-        membershipIds = membershipItems.map(item => item.product.id as number);
+        membershipIds = membershipItems.map(item => {
+          // membershipId is stored separately, or extract from id if it's 1000 + membershipId
+          const membershipId = (item.product as any).membershipId || (item.product.id - 1000);
+          return membershipId as number;
+        });
         const membershipList = membershipItems
           .map(item => `${item.product.name} (Qty: ${item.quantity})`)
           .join(', ');
