@@ -80,7 +80,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-primary-foreground/50">
-            © 2026 JP Skating Club. All rights reserved.
+            © 2026 Skating. All rights reserved.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-sm text-primary-foreground/50 hover:text-accent transition-colors">
