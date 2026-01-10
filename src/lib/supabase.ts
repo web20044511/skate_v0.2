@@ -21,28 +21,23 @@ if (!supabaseUrl.startsWith("https://")) {
   throw new Error(`Invalid Supabase URL format: ${supabaseUrl}`);
 }
 
-try {
-  export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      storage: localStorage,
-      storageKey: 'sb-auth-token',
-      detectSessionInUrl: true,
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    storage: localStorage,
+    storageKey: 'sb-auth-token',
+    detectSessionInUrl: true,
+  },
+  global: {
+    headers: {
+      "X-Client-Info": "supabase-js/web",
     },
-    global: {
-      headers: {
-        "X-Client-Info": "supabase-js/web",
-      },
-    },
-  });
+  },
+});
 
-  console.log("[SUPABASE] Client initialized successfully");
-  console.log("[SUPABASE] Base URL:", supabaseUrl);
-} catch (error) {
-  console.error("[SUPABASE] Failed to create client:", error);
-  throw new Error(`Failed to initialize Supabase client: ${String(error)}`);
-}
+console.log("[SUPABASE] Client initialized successfully");
+console.log("[SUPABASE] Base URL:", supabaseUrl);
 
 // Test connectivity
 export async function testSupabaseConnection() {
