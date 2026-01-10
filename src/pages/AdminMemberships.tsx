@@ -28,8 +28,30 @@ export default function AdminMemberships() {
     price: 0,
     duration_days: 30,
     benefits: [] as string[],
+    icon: "Star",
+    color: "silver",
   });
   const [newBenefit, setNewBenefit] = useState("");
+
+  const iconOptions = [
+    { name: "Star", Icon: Star },
+    { name: "Crown", Icon: Crown },
+    { name: "Flame", Icon: Flame },
+    { name: "Zap", Icon: Zap },
+    { name: "Gift", Icon: Gift },
+    { name: "Trophy", Icon: Trophy },
+    { name: "Heart", Icon: Heart },
+    { name: "Award", Icon: Award },
+  ];
+
+  const colorOptions = [
+    { name: "silver", label: "Silver", hex: "#C0C0C0" },
+    { name: "gold", label: "Gold", hex: "#FFD700" },
+    { name: "platinum", label: "Platinum", hex: "#E5E4E2" },
+    { name: "blue", label: "Blue", hex: "#3B82F6" },
+    { name: "purple", label: "Purple", hex: "#A855F7" },
+    { name: "emerald", label: "Emerald", hex: "#10B981" },
+  ];
 
   useEffect(() => {
     loadMemberships();
