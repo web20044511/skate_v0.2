@@ -105,14 +105,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           };
           setUser(newUser);
 
-          // Start inactivity timer for admins on page load
+          // Start inactivity timer for admins on page load (24 hour timeout)
           if (newUser.role === "admin") {
             resetInactivityTimer();
           }
         } catch (profileError) {
           const errorMsg = profileError instanceof Error ? profileError.message : String(profileError);
-          console.debug("[AUTH] Profile fetch failed, using fallback:", errorMsg);
-          // Fallback: create a minimal user object if profile fetch fails
+          console.debug("[AUTH] Profile fetch failed during checkAuth, keeping user logged in:", errorMsg);
+          // Fallback: Keep user logged in with minimal data instead of logging them out
+          // This prevents unwanted logouts due to network issues or slow database
           const fallbackUser = {
             id: authUser.id,
             email: authUser.email || "",
