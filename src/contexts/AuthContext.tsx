@@ -149,7 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("[AUTH] Auth state changed:", event);
+      console.log("[AUTH] Auth state changed:", event, "User ID:", session?.user?.id);
       if (session?.user) {
         try {
           console.log("[AUTH] Fetching profile for user:", session.user.id);
@@ -162,14 +162,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           };
           setUser(newUser);
 
-          // Start inactivity timer for admins
+          // Start inactivity timer for admins (24 hour timeout)
           if (newUser.role === "admin") {
             resetInactivityTimer();
           }
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : String(error);
-          console.debug("[AUTH] Profile fetch failed in auth state change, using fallback:", errorMsg);
-          // Fallback: create a minimal user object if profile fetch fails
+          console.debug("[AUTH] Profile fetch failed in auth state change, keeping user logged in:", errorMsg);
+          // Fallback: Keep user logged in instead of forcing logout
+          // This allows the app to continue functioning even if profile fetch fails
           const fallbackUser = {
             id: session.user.id,
             email: session.user.email || "",
