@@ -226,9 +226,15 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map(product => <Link key={product.id} to={`/product/${product.id}`} className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            {isLoading ? (
+              <div className="col-span-4 text-center py-12">
+                <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-primary mx-auto" />
+                <p className="text-muted-foreground">Loading featured products...</p>
+              </div>
+            ) : featuredProducts.length > 0 ? (
+              featuredProducts.map(product => <Link key={product.id} to={`/product/${product.id}`} className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <div className="aspect-square overflow-hidden bg-muted">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={product.image_url || ""} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-4">
                   <span className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -239,17 +245,22 @@ const Index = () => {
                   </h3>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-lg font-bold text-foreground">
-                      ${product.price}
+                      ${product.price.toFixed(2)}
                     </span>
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-accent text-accent" />
                       <span className="text-sm text-muted-foreground">
-                        {product.rating}
+                        {product.rating || 5}
                       </span>
                     </div>
                   </div>
                 </div>
-              </Link>)}
+              </Link>)
+            ) : (
+              <div className="col-span-4 text-center py-12">
+                <p className="text-muted-foreground">No featured products available</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
