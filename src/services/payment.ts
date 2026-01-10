@@ -325,7 +325,7 @@ export const paymentService = {
   },
 
   // For testing purposes - simulate payment success
-  async simulatePaymentSuccess(orderId: number, amount: number, email: string) {
+  async simulatePaymentSuccess(orderId: number, amount: number, email: string, userId?: string) {
     try {
       const txnid = `SIM_${orderId}_${Date.now()}`;
 
@@ -348,6 +348,11 @@ export const paymentService = {
           status: "confirmed",
         })
         .eq("id", orderId);
+
+      // Process memberships if user is provided
+      if (userId) {
+        await processMembershipsForOrder(orderId, userId);
+      }
 
       return {
         status: "success",
