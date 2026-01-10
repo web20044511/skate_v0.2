@@ -42,7 +42,7 @@ const testimonials = [{
   name: "Coach Michael Chen",
   role: "Youth Development Director",
   image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-  quote: "As a coach, I need equipment I can trust. JP Skating delivers professional-grade gear that helps young skaters develop their skills with confidence.",
+  quote: "As a coach, I need equipment I can trust. We deliver professional-grade gear that helps young skaters develop their skills with confidence.",
   rating: 5
 }, {
   name: "Coach Sarah Williams",
