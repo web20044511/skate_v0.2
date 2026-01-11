@@ -4,9 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
+import MembershipCard from "@/components/MembershipCard";
 import { userMembershipService, membershipService } from "@/services/database";
 import { Membership, UserMembership } from "@/types/database";
-import { LogOut, Edit2, Calendar, Award, Star, Crown, Flame, Zap, Gift, Trophy, Heart } from "lucide-react";
+import { LogOut, Edit2, Calendar, Award, Star, Crown, Flame, Zap, Gift, Trophy, Heart, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 const iconMap: Record<string, any> = {
@@ -34,6 +35,7 @@ export default function UserProfile() {
   const { user, isAuthenticated, logout } = useAuth();
   const [memberships, setMemberships] = useState<(UserMembership & { membership: Membership | null })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -45,14 +47,33 @@ export default function UserProfile() {
     try {
       setIsLoading(true);
       if (user?.id) {
+        console.log(`[PROFILE] Loading memberships for user ${user.id}...`);
         const data = await userMembershipService.getByUserId(user.id);
+        console.log(`[PROFILE] Loaded ${data.length} memberships:`, data);
         setMemberships(data);
+        if (data.length > 0) {
+          toast.success(`Loaded ${data.length} membership(s)`);
+        }
       }
     } catch (error) {
       console.error("Error loading memberships:", error);
       toast.error("Failed to load memberships");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      console.log(`[PROFILE] User clicked refresh memberships`);
+      await loadMemberships();
+      toast.success("Memberships refreshed!");
+    } catch (error) {
+      console.error("Error refreshing memberships:", error);
+      toast.error("Failed to refresh memberships");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -134,18 +155,30 @@ export default function UserProfile() {
 
           {/* Memberships Section */}
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">My Memberships</h2>
                 <p className="text-gray-600 mt-2">Active and inactive memberships</p>
               </div>
-              <Button
-                onClick={() => navigate("/programme")}
-                size="lg"
-              >
-                <Award className="w-4 h-4 mr-2" />
-                Browse Memberships
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleRefresh}
+                  variant="outline"
+                  size="lg"
+                  disabled={isRefreshing}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                  {isRefreshing ? "Refreshing..." : "Refresh"}
+                </Button>
+                <Button
+                  onClick={() => navigate("/programme")}
+                  size="lg"
+                >
+                  <Award className="w-4 h-4 mr-2" />
+                  Browse Memberships
+                </Button>
+              </div>
             </div>
 
             {isLoading ? (
@@ -173,143 +206,16 @@ export default function UserProfile() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {memberships.map((userMembership) => {
-                  const membership = userMembership.membership;
-                  if (!membership) return null;
-
-                  const IconComponent = iconMap[membership.icon || 'Star'] || Star;
-                  const color = colorMap[membership.color || 'silver'];
-                  const startDate = new Date(userMembership.start_date);
-                  const endDate = new Date(userMembership.end_date);
-                  const now = new Date();
-                  const isActive = userMembership.is_active && now <= endDate;
-                  const daysRemaining = Math.ceil(
-                    (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-                  );
-
-                  return (
-                    <div
-                      key={userMembership.id}
-                      className={`relative rounded-xl border-2 overflow-hidden transition-all duration-300 group hover:shadow-xl ${
-                        isActive
-                          ? "border-green-200 bg-gradient-to-br from-green-50 to-emerald-50"
-                          : "border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100"
-                      }`}
-                    >
-                      {/* Icon Background */}
-                      <div
-                        className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-10 group-hover:scale-110 transition-transform"
-                        style={{ backgroundColor: color }}
-                      />
-
-                      <div className="relative p-6">
-                        {/* Header */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-12 h-12 rounded-lg flex items-center justify-center"
-                              style={{ backgroundColor: color + "20" }}
-                            >
-                              <IconComponent
-                                className="w-7 h-7"
-                                style={{ color }}
-                              />
-                            </div>
-                            <div>
-                              <h3 className="text-xl font-bold text-gray-900">
-                                {membership.name}
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                Membership Plan
-                              </p>
-                            </div>
-                          </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              isActive
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-200 text-gray-800"
-                            }`}
-                          >
-                            {isActive ? "ACTIVE" : "EXPIRED"}
-                          </span>
-                        </div>
-
-                        {/* Membership Details */}
-                        <div className="space-y-4 mb-6 border-t border-gray-200 pt-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Start Date</span>
-                            <span className="font-semibold text-gray-900">
-                              {startDate.toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">End Date</span>
-                            <span className="font-semibold text-gray-900">
-                              {endDate.toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                          {isActive && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">Days Remaining</span>
-                              <span className={`font-bold text-lg ${
-                                daysRemaining <= 7 ? "text-red-600" : "text-green-600"
-                              }`}>
-                                {daysRemaining} {daysRemaining === 1 ? "day" : "days"}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Benefits */}
-                        {membership.benefits && (membership.benefits as any)?.list?.length > 0 && (
-                          <div className="mb-6 border-t border-gray-200 pt-4">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">
-                              Benefits Included
-                            </p>
-                            <ul className="space-y-2">
-                              {(membership.benefits as any).list.slice(0, 3).map(
-                                (benefit: string, index: number) => (
-                                  <li
-                                    key={index}
-                                    className="flex gap-2 items-start text-sm text-gray-700"
-                                  >
-                                    <span
-                                      className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
-                                      style={{ backgroundColor: color }}
-                                    />
-                                    {benefit}
-                                  </li>
-                                )
-                              )}
-                              {(membership.benefits as any)?.list?.length > 3 && (
-                                <li className="text-xs text-gray-500 pl-3">
-                                  + {(membership.benefits as any).list.length - 3} more benefits
-                                </li>
-                              )}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* Price */}
-                        <div className="pt-4 border-t border-gray-200">
-                          <p className="text-xs text-gray-600 mb-1">Membership Value</p>
-                          <p className="text-2xl font-bold text-gray-900">
-                            ₹{membership.price.toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {memberships.map((userMembership) => (
+                  <MembershipCard
+                    key={userMembership.id}
+                    userMembership={userMembership}
+                    onRenew={() => navigate("/programme")}
+                    onManage={() => {
+                      toast.info("Membership management coming soon!");
+                    }}
+                  />
+                ))}
               </div>
             )}
           </div>

@@ -2,6 +2,52 @@
 
 This document outlines the database schema changes needed to support the new features implemented in the checkout and order management system.
 
+## Multiple Product Images Support
+
+### New Column for Products Table
+
+Add support for multiple product images by adding a JSON array field to the `products` table:
+
+```sql
+-- Add images column to products table
+ALTER TABLE products
+ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'::jsonb;
+```
+
+**Description:**
+- `images`: Stores an array of image URLs for each product
+- Format: `["https://...", "https://...", ...]`
+- The first image in the array is used as the main product image in the gallery
+- Backward compatible: existing products can use their single `image_url` field
+
+#### Why use JSONB instead of a separate table?
+- Simpler to query and manage for most use cases
+- Faster for small to medium arrays of images (< 100 images per product)
+- Easier to update all images atomically
+- More flexible if you need to add metadata to images in the future
+
+### Using the Multiple Images Feature
+
+#### In Admin Panel:
+1. Go to Admin → Inventory → Add/Edit Product
+2. Upload multiple images in the "Product Images" section
+3. Drag images to reorder them (first image becomes the main image)
+4. Hover over images to delete them
+
+#### In Product Page (User View):
+1. The product page displays a beautiful image gallery
+2. Use arrow buttons to navigate between images
+3. Click thumbnail images for quick navigation
+4. Image counter shows current position
+
+### Migration Path for Existing Products
+
+Your existing products are backward compatible:
+- Products with only `image_url` will work fine
+- The ProductPage falls back to `image_url` if no images array exists
+- When you edit and re-upload a product, the new images array will be created
+- Old `image_url` is preserved as the first image for continuity
+
 ## Overview
 
 The following features require new columns in the `orders` table:

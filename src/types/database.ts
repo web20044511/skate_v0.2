@@ -16,6 +16,7 @@ export interface Product {
   original_price: number | null;
   category: string;
   image_url: string | null;
+  images: string[] | null;
   stock_quantity: number;
   sku: string | null;
   is_active: boolean;

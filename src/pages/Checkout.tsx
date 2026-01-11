@@ -141,12 +141,28 @@ export default function Checkout() {
       const membershipItems = items.filter(item => item.product.category === 'Membership');
       let orderNotes = formData.notes;
       let membershipIds: number[] = [];
+
       if (membershipItems.length > 0) {
-        membershipIds = membershipItems.map(item => item.product.membershipId || (item.product.id - 1000));
+        // Extract membership IDs from cart items
+        // membershipId is explicitly set when adding membership to cart
+        membershipIds = membershipItems
+          .map(item => {
+            const memId = item.product.membershipId;
+            if (!memId) {
+              console.warn(`[CHECKOUT] Missing membershipId for item: ${item.product.name}`);
+            }
+            return memId as number;
+          })
+          .filter(id => id > 0); // Filter out invalid IDs
+
+        console.log(`[CHECKOUT] Extracted membership IDs: ${JSON.stringify(membershipIds)}`);
+
         const membershipList = membershipItems
           .map(item => `${item.product.name} (Qty: ${item.quantity})`)
           .join(', ');
+
         orderNotes = `MEMBERSHIPS:${JSON.stringify(membershipIds)}|Memberships: ${membershipList}${formData.notes ? '. ' + formData.notes : ''}`;
+        console.log(`[CHECKOUT] Order notes: ${orderNotes}`);
       }
 
       const order = await orderService.create({

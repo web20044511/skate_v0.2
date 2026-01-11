@@ -25,6 +25,7 @@ import AdminPaymentOptions from "./pages/AdminPaymentOptions";
 import AdminMemberships from "./pages/AdminMemberships";
 import AdminSubscribers from "./pages/AdminSubscribers";
 import SupabaseTest from "./pages/SupabaseTest";
+import MembershipDebug from "./pages/MembershipDebug";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import UserProfile from "./pages/UserProfile";
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/orders" element={<Orders />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/test/supabase" element={<SupabaseTest />} />
+              <Route path="/test/membership-debug" element={<MembershipDebug />} />
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route

@@ -22,8 +22,8 @@ export default function AdminInventory() {
   const [isUploading, setIsUploading] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -31,6 +31,7 @@ export default function AdminInventory() {
     original_price: 0,
     category: "",
     image_url: "",
+    images: [] as string[],
     stock_quantity: 0,
     sku: "",
   });
@@ -62,10 +63,11 @@ export default function AdminInventory() {
         original_price: product.original_price || 0,
         category: product.category,
         image_url: product.image_url || "",
+        images: product.images || [],
         stock_quantity: product.stock_quantity,
         sku: product.sku || "",
       });
-      setPreviewUrl(product.image_url || "");
+      setPreviewUrls(product.images || []);
     } else {
       setEditingProduct(null);
       setFormData({
@@ -75,31 +77,55 @@ export default function AdminInventory() {
         original_price: 0,
         category: "",
         image_url: "",
+        images: [],
         stock_quantity: 0,
         sku: "",
       });
-      setPreviewUrl("");
+      setPreviewUrls([]);
     }
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingProduct(null);
-    setSelectedFile(null);
-    setPreviewUrl("");
+    setSelectedFiles([]);
+    setPreviewUrls([]);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...files]);
+
+      // Generate preview URLs
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrls((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (indexToRemove: number, isNewFile: boolean) => {
+    if (isNewFile) {
+      // Remove from newly selected files
+      const newFilesIndex = previewUrls.length - selectedFiles.length;
+      if (indexToRemove >= newFilesIndex) {
+        const selectedFileIndex = indexToRemove - newFilesIndex;
+        setSelectedFiles((prev) => prev.filter((_, idx) => idx !== selectedFileIndex));
+        setPreviewUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+      }
+    } else {
+      // Remove from existing images
+      setFormData((prev) => ({
+        ...prev,
+        images: prev.images?.filter((_, idx) => idx !== indexToRemove) || [],
+      }));
+      setPreviewUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
     }
   };
 
@@ -109,13 +135,21 @@ export default function AdminInventory() {
     try {
       setIsUploading(true);
       let imageUrl = formData.image_url;
+      let images = formData.images || [];
 
-      // Upload image if a new file was selected
-      if (selectedFile) {
+      // Upload new files
+      if (selectedFiles.length > 0) {
         try {
-          imageUrl = await storageService.uploadProductImage(selectedFile);
+          for (const file of selectedFiles) {
+            const url = await storageService.uploadProductImage(file);
+            images.push(url);
+          }
+          // Set the first image as the main image_url
+          if (images.length > 0) {
+            imageUrl = images[0];
+          }
         } catch (error) {
-          toast.error("Failed to upload image");
+          toast.error("Failed to upload images");
           setIsUploading(false);
           return;
         }
@@ -124,6 +158,7 @@ export default function AdminInventory() {
       const productData = {
         ...formData,
         image_url: imageUrl,
+        images: images,
         price: parseFloat(formData.price.toString()),
         original_price: formData.original_price
           ? parseFloat(formData.original_price.toString())
@@ -292,28 +327,44 @@ export default function AdminInventory() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Product Image</label>
+                  <label className="text-sm font-medium">Product Images</label>
+                  <p className="text-xs text-gray-500">
+                    Upload multiple images. The first image will be the main product image.
+                  </p>
                   <div className="space-y-3">
-                    {/* Image Preview */}
-                    {previewUrl && (
-                      <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-gray-100">
-                        <img
-                          src={previewUrl}
-                          alt="Product preview"
-                          className="w-full h-full object-cover"
-                        />
-                        {selectedFile && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedFile(null);
-                              setPreviewUrl(formData.image_url || "");
-                            }}
-                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
+                    {/* Image Previews Grid */}
+                    {previewUrls.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {previewUrls.map((url, index) => {
+                          const isNewFile =
+                            index >= (formData.images?.length || 0);
+                          return (
+                            <div
+                              key={index}
+                              className="relative w-full aspect-square border rounded-lg overflow-hidden bg-gray-100 group"
+                            >
+                              <img
+                                src={url}
+                                alt={`Product preview ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              {index === 0 && (
+                                <div className="absolute top-1 left-1 bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                  Main
+                                </div>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeImage(index, isNewFile)
+                                }
+                                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
 
@@ -322,10 +373,10 @@ export default function AdminInventory() {
                       <label className="w-full cursor-pointer flex flex-col items-center justify-center">
                         <Upload className="w-8 h-8 text-gray-400 mb-2" />
                         <span className="text-sm font-medium text-gray-700">
-                          Click to upload image
+                          Click to add more images
                         </span>
                         <span className="text-xs text-gray-500">
-                          JPG, PNG or WebP (Max 5MB)
+                          JPG, PNG or WebP (Max 5MB each)
                         </span>
                         <input
                           type="file"
@@ -333,9 +384,16 @@ export default function AdminInventory() {
                           onChange={handleFileSelect}
                           className="hidden"
                           disabled={isUploading}
+                          multiple
                         />
                       </label>
                     </div>
+
+                    {previewUrls.length === 0 && (
+                      <p className="text-xs text-gray-500 text-center py-4">
+                        No images added yet
+                      </p>
+                    )}
                   </div>
                 </div>
 

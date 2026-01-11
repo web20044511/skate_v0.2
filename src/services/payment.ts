@@ -29,28 +29,54 @@ export interface PaymentResponse {
 
 // Helper function to extract and process memberships from order
 const processMembershipsForOrder = async (orderId: number, userId: string | null) => {
-  if (!userId) return;
+  console.log(`[PAYMENT] Starting processMembershipsForOrder - orderId: ${orderId}, userId: ${userId}`);
+
+  if (!userId) {
+    console.warn(`[PAYMENT] ❌ No userId provided, skipping membership processing`);
+    return;
+  }
 
   try {
     // Fetch the order to get membership details
-    const { data: order } = await supabase
+    console.log(`[PAYMENT] Fetching order ${orderId}...`);
+    const { data: order, error: orderError } = await supabase
       .from("orders")
       .select("*")
       .eq("id", orderId)
       .single();
 
-    if (!order || !order.notes) return;
+    if (orderError) {
+      console.error(`[PAYMENT] ❌ Error fetching order: ${orderError.message}`);
+      return;
+    }
+
+    if (!order) {
+      console.warn(`[PAYMENT] ❌ Order not found: ${orderId}`);
+      return;
+    }
+
+    if (!order.notes) {
+      console.warn(`[PAYMENT] ⚠️ Order has no notes, skipping membership processing`);
+      return;
+    }
+
+    console.log(`[PAYMENT] Order notes: ${order.notes}`);
 
     // Parse membership IDs from order notes
     // Format: "MEMBERSHIPS:[1,2,3]|other notes"
     const membershipMatch = order.notes.match(/MEMBERSHIPS:(\[[\d,\s]*\])/);
     if (!membershipMatch) {
-      console.log(`[PAYMENT] No membership IDs found in order notes: ${order.notes}`);
+      console.warn(`[PAYMENT] ⚠️ No membership IDs found in order notes`);
       return;
     }
 
     const membershipIds = JSON.parse(membershipMatch[1]) as number[];
-    console.log(`[PAYMENT] Extracted membership IDs: ${JSON.stringify(membershipIds)}`);
+    console.log(`[PAYMENT] ✅ Extracted membership IDs: ${JSON.stringify(membershipIds)}`);
+
+    if (membershipIds.length === 0) {
+      console.warn(`[PAYMENT] ⚠️ Empty membership IDs array`);
+      return;
+    }
 
     // Create user_membership records for each membership
     const now = new Date();
@@ -61,31 +87,38 @@ const processMembershipsForOrder = async (orderId: number, userId: string | null
         // Get membership details to know duration
         console.log(`[PAYMENT] Fetching membership ${membershipId}...`);
         const membership = await membershipService.getById(membershipId);
-        console.log(`[PAYMENT] Membership details:`, membership);
 
-        if (membership) {
-          // Calculate end date
-          const endDate = new Date(now);
-          endDate.setDate(endDate.getDate() + membership.duration_days);
-
-          console.log(`[PAYMENT] Creating user_membership with end_date: ${endDate.toISOString()}`);
-
-          // Create user membership
-          const userMem = await userMembershipService.create({
-            user_id: userId,
-            membership_id: membershipId,
-            start_date: now.toISOString(),
-            end_date: endDate.toISOString(),
-            is_active: true,
-          });
-
-          console.log(
-            `[PAYMENT] ✅ Created user_membership for user ${userId}, membership ${membershipId}:`,
-            userMem
-          );
-        } else {
-          console.warn(`[PAYMENT] Membership ${membershipId} not found`);
+        if (!membership) {
+          console.error(`[PAYMENT] ❌ Membership ${membershipId} not found`);
+          continue;
         }
+
+        console.log(`[PAYMENT] ✅ Membership found: ${membership.name}, duration: ${membership.duration_days} days`);
+
+        // Calculate end date
+        const endDate = new Date(now);
+        endDate.setDate(endDate.getDate() + membership.duration_days);
+
+        console.log(`[PAYMENT] Creating user_membership:
+          - user_id: ${userId}
+          - membership_id: ${membershipId}
+          - start_date: ${now.toISOString()}
+          - end_date: ${endDate.toISOString()}
+          - is_active: true`);
+
+        // Create user membership
+        const userMem = await userMembershipService.create({
+          user_id: userId,
+          membership_id: membershipId,
+          start_date: now.toISOString(),
+          end_date: endDate.toISOString(),
+          is_active: true,
+        });
+
+        console.log(
+          `[PAYMENT] ✅✅ Successfully created user_membership:`,
+          userMem
+        );
       } catch (error) {
         console.error(
           `[PAYMENT] ❌ Failed to create membership ${membershipId} for user ${userId}:`,
@@ -93,8 +126,10 @@ const processMembershipsForOrder = async (orderId: number, userId: string | null
         );
       }
     }
+
+    console.log(`[PAYMENT] ✅ Completed processing memberships for order ${orderId}`);
   } catch (error) {
-    console.error("[PAYMENT] Failed to process memberships:", error);
+    console.error(`[PAYMENT] ❌ Fatal error in processMembershipsForOrder:`, error);
   }
 };
 
