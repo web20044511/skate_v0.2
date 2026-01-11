@@ -127,36 +127,36 @@ export default function UserProfile() {
       <div className="min-h-screen bg-gradient-to-b from-primary/5 to-transparent py-12 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Profile Header */}
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
+          <div className="mb-8 sm:mb-12">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900">My Profile</h1>
-                <p className="text-gray-600 mt-2">Manage your account and memberships</p>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">My Profile</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-2">Manage your account and memberships</p>
               </div>
               <Button
                 onClick={handleLogout}
                 variant="destructive"
-                size="lg"
-                className="gap-2"
+                size="sm"
+                className="gap-2 text-xs sm:text-sm"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Logout
               </Button>
             </div>
 
             {/* User Info Card */}
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-              <CardContent className="pt-6">
-                <div className="grid md:grid-cols-2 gap-6">
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Full Name</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Full Name</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 break-words">
                       {user?.full_name || "Not set"}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Email Address</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Email Address</p>
+                    <p className="text-xs sm:text-lg font-bold text-gray-900 mt-1 break-all">
                       {user?.email}
                     </p>
                   </div>
