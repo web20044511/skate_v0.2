@@ -90,8 +90,8 @@ export default function AdminInventory() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingProduct(null);
-    setSelectedFile(null);
-    setPreviewUrl("");
+    setSelectedFiles([]);
+    setPreviewUrls([]);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
