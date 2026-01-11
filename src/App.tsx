@@ -63,6 +63,7 @@ const App = () => (
               <Route path="/orders" element={<Orders />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/test/supabase" element={<SupabaseTest />} />
+              <Route path="/test/membership-debug" element={<MembershipDebug />} />
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route
