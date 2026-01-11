@@ -50,9 +50,21 @@ export default function UserProfile() {
         console.log(`[PROFILE] Loading memberships for user ${user.id}...`);
         const data = await userMembershipService.getByUserId(user.id);
         console.log(`[PROFILE] Loaded ${data.length} memberships:`, data);
-        setMemberships(data);
-        if (data.length > 0) {
-          toast.success(`Loaded ${data.length} membership(s)`);
+
+        // Filter and map memberships to ensure proper structure
+        const validMemberships = (data || []).filter(item => {
+          const hasMembership = item.membership && typeof item.membership === 'object';
+          if (!hasMembership) {
+            console.warn(`[PROFILE] Skipping membership without valid membership object:`, item);
+          }
+          return hasMembership;
+        });
+
+        console.log(`[PROFILE] Valid memberships after filtering: ${validMemberships.length}`);
+        setMemberships(validMemberships);
+
+        if (validMemberships.length > 0) {
+          toast.success(`Loaded ${validMemberships.length} membership(s)`);
         }
       }
     } catch (error) {
