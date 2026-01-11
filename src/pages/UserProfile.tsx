@@ -155,18 +155,30 @@ export default function UserProfile() {
 
           {/* Memberships Section */}
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">My Memberships</h2>
                 <p className="text-gray-600 mt-2">Active and inactive memberships</p>
               </div>
-              <Button
-                onClick={() => navigate("/programme")}
-                size="lg"
-              >
-                <Award className="w-4 h-4 mr-2" />
-                Browse Memberships
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleRefresh}
+                  variant="outline"
+                  size="lg"
+                  disabled={isRefreshing}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                  {isRefreshing ? "Refreshing..." : "Refresh"}
+                </Button>
+                <Button
+                  onClick={() => navigate("/programme")}
+                  size="lg"
+                >
+                  <Award className="w-4 h-4 mr-2" />
+                  Browse Memberships
+                </Button>
+              </div>
             </div>
 
             {isLoading ? (
