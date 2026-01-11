@@ -63,10 +63,11 @@ export default function AdminInventory() {
         original_price: product.original_price || 0,
         category: product.category,
         image_url: product.image_url || "",
+        images: product.images || [],
         stock_quantity: product.stock_quantity,
         sku: product.sku || "",
       });
-      setPreviewUrl(product.image_url || "");
+      setPreviewUrls(product.images || []);
     } else {
       setEditingProduct(null);
       setFormData({
@@ -76,12 +77,13 @@ export default function AdminInventory() {
         original_price: 0,
         category: "",
         image_url: "",
+        images: [],
         stock_quantity: 0,
         sku: "",
       });
-      setPreviewUrl("");
+      setPreviewUrls([]);
     }
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setIsDialogOpen(true);
   };
 
