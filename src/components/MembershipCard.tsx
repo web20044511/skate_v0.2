@@ -155,13 +155,13 @@ const MembershipCard = ({
           <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mb-4 sm:mb-6" />
 
           {/* Key Information Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {/* Price */}
             <div>
               <p className="text-xs text-gray-600 uppercase font-semibold tracking-wider mb-1">
                 Plan Price
               </p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">
                 ₹{membership.price.toFixed(0)}
               </p>
               <p className="text-xs text-gray-500 mt-1">
@@ -177,7 +177,7 @@ const MembershipCard = ({
               {isActive ? (
                 <div>
                   <p
-                    className={`text-2xl font-bold ${
+                    className={`text-lg sm:text-2xl font-bold ${
                       daysRemaining <= 7 ? "text-red-600" : "text-green-600"
                     }`}
                   >
@@ -187,7 +187,7 @@ const MembershipCard = ({
                 </div>
               ) : (
                 <div>
-                  <p className="text-2xl font-bold text-gray-400">Expired</p>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-400">Expired</p>
                   <p className="text-xs text-gray-500 mt-1">
                     {Math.abs(daysRemaining)} days ago
                   </p>
@@ -198,7 +198,7 @@ const MembershipCard = ({
 
           {/* Progress Bar */}
           {isActive && (
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-gray-600 font-semibold">
                   Time Remaining
@@ -209,11 +209,11 @@ const MembershipCard = ({
               </div>
               <div className="w-full h-2 bg-gray-300 rounded-full overflow-hidden">
                 <div
-                  className="h-full transition-all duration-500 rounded-full"
+                  className="h-full transition-all duration-300 rounded-full"
                   style={{
                     width: `${percentageRemaining}%`,
                     backgroundColor: color,
-                    boxShadow: `0 0 10px ${color}`,
+                    boxShadow: `0 0 8px ${color}66`,
                   }}
                 />
               </div>
