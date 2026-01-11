@@ -109,14 +109,17 @@ const ProductPage = () => {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Image */}
-          <div className="aspect-square bg-muted rounded-2xl overflow-hidden">
-            <img
-              src={product.image_url || ""}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* Product Image Gallery */}
+          <ProductImageGallery
+            images={
+              product.images && product.images.length > 0
+                ? product.images
+                : product.image_url
+                ? [product.image_url]
+                : []
+            }
+            productName={product.name}
+          />
 
           {/* Product Info */}
           <div className="space-y-6">
