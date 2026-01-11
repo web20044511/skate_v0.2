@@ -279,11 +279,15 @@ export const userMembershipService = {
   async getByUserId(userId: string) {
     const { data, error } = await supabase
       .from("user_memberships")
-      .select("*, memberships(*)")
+      .select("*, membership:membership_id(*)")
       .eq("user_id", userId)
       .order("end_date", { ascending: false });
     if (error) throw error;
-    return data as any[];
+    // Map the data to ensure proper structure
+    return (data || []).map((item: any) => ({
+      ...item,
+      membership: item.membership || null,
+    })) as any[];
   },
 
   async getActiveByUserId(userId: string) {
