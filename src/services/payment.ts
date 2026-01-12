@@ -95,24 +95,55 @@ const processMembershipsForOrder = async (orderId: number, userId: string | null
 
         console.log(`[PAYMENT] ✅ Membership found: ${membership.name}, duration: ${membership.duration_days} days`);
 
-        // Calculate end date
-        const endDate = new Date(now);
+        // Check if user already has an active membership of the same type
+        const { data: existingMemberships, error: fetchError } = await supabase
+          .from("user_memberships")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("membership_id", membershipId)
+          .order("end_date", { ascending: false });
+
+        if (fetchError) {
+          console.warn(`[PAYMENT] ⚠️ Could not fetch existing memberships: ${fetchError.message}`);
+        }
+
+        let startDate = new Date(now);
+        let isActive = true;
+
+        if (existingMemberships && existingMemberships.length > 0) {
+          // Get the most recent membership
+          const lastMembership = existingMemberships[0];
+          const lastEndDate = new Date(lastMembership.end_date);
+
+          // If there's an active membership, queue this one to start after it ends
+          if (lastEndDate > now) {
+            startDate = new Date(lastEndDate);
+            isActive = false; // Mark as inactive - it will activate automatically when the previous one ends
+            console.log(`[PAYMENT] ⚠️ Membership ${membershipId} will be queued. Previous membership ends: ${lastEndDate.toISOString()}`);
+          } else {
+            // Previous membership has expired, this one can start now
+            console.log(`[PAYMENT] ℹ️ Previous membership has expired, activating new one immediately`);
+          }
+        }
+
+        // Calculate end date based on the start date
+        const endDate = new Date(startDate);
         endDate.setDate(endDate.getDate() + membership.duration_days);
 
         console.log(`[PAYMENT] Creating user_membership:
           - user_id: ${userId}
           - membership_id: ${membershipId}
-          - start_date: ${now.toISOString()}
+          - start_date: ${startDate.toISOString()}
           - end_date: ${endDate.toISOString()}
-          - is_active: true`);
+          - is_active: ${isActive}`);
 
         // Create user membership
         const userMem = await userMembershipService.create({
           user_id: userId,
           membership_id: membershipId,
-          start_date: now.toISOString(),
+          start_date: startDate.toISOString(),
           end_date: endDate.toISOString(),
-          is_active: true,
+          is_active: isActive,
         });
 
         console.log(
