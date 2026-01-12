@@ -359,18 +359,18 @@ export default function Orders() {
                           </div>
                         )}
 
-                        {/* Auto-Renewal Info */}
+                        {/* Renewal Info */}
                         {membershipStatus === "active" && (
                           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
                             <p className="text-white/70 text-xs uppercase tracking-wider font-medium mb-2">
-                              ℹ️ Auto-Renewal
+                              ℹ️ Membership Details
                             </p>
                             <p className="text-white/90 text-sm">
-                              This membership will automatically activate any queued renewals on{" "}
+                              This membership will automatically end after duration. Renewals available on{" "}
                               <span className="font-semibold">
                                 {new Date(item.end_date).toLocaleDateString()}
                               </span>
-                              .
+                              . You can also renew in advance.
                             </p>
                           </div>
                         )}
