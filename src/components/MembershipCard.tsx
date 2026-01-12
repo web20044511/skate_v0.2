@@ -63,7 +63,13 @@ const MembershipCard = ({
   const startDate = new Date(userMembership.start_date);
   const endDate = new Date(userMembership.end_date);
   const now = new Date();
-  const isActive = userMembership.is_active && now <= endDate;
+
+  // Use status from queue processing if available, otherwise calculate
+  const membershipStatus = userMembership.status || (userMembership.is_active && now <= endDate ? "active" : "expired");
+  const isActive = membershipStatus === "active";
+  const isQueued = membershipStatus === "queued";
+  const isPending = membershipStatus === "pending";
+
   const daysRemaining = Math.ceil(
     (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
   );
@@ -71,6 +77,12 @@ const MembershipCard = ({
     0,
     Math.min(100, (daysRemaining / membership.duration_days) * 100)
   );
+
+  // For queued memberships, calculate days until activation
+  const nextActivationDate = userMembership.nextActivationDate ? new Date(userMembership.nextActivationDate) : null;
+  const daysUntilActivation = nextActivationDate
+    ? Math.ceil((nextActivationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    : null;
 
   const handleCopyMembershidId = () => {
     navigator.clipboard.writeText(userMembership.id.toString());
