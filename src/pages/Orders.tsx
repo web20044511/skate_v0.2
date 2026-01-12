@@ -5,8 +5,8 @@ import { useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
-import { orderService } from "@/services/database";
-import { Eye, Package, Check, Truck, Home, Clock } from "lucide-react";
+import { orderService, userMembershipService } from "@/services/database";
+import { Eye, Package, Check, Truck, Home, Clock, Crown, Zap, Gift, Trophy, Star, Flame } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Orders() {
