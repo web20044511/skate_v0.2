@@ -446,4 +446,67 @@ export const paymentService = {
       };
     }
   },
+
+  // Helper function to activate queued memberships when current one expires
+  async activateQueuedMemberships(userId: string) {
+    try {
+      console.log(`[PAYMENT] Starting activateQueuedMemberships for user ${userId}`);
+
+      // Get all memberships for user
+      const { data: allMemberships, error } = await supabase
+        .from("user_memberships")
+        .select("*")
+        .eq("user_id", userId)
+        .order("start_date", { ascending: true });
+
+      if (error) {
+        console.error(`[PAYMENT] Error fetching memberships:`, error);
+        return;
+      }
+
+      const now = new Date();
+
+      // Group by membership_id
+      const groupedByMembershipId: Record<number, any[]> = {};
+      allMemberships?.forEach((mem: any) => {
+        if (!groupedByMembershipId[mem.membership_id]) {
+          groupedByMembershipId[mem.membership_id] = [];
+        }
+        groupedByMembershipId[mem.membership_id].push(mem);
+      });
+
+      // Check each group and activate queued memberships
+      for (const membershipId in groupedByMembershipId) {
+        const memberships = groupedByMembershipId[membershipId];
+
+        // Find the active one
+        const activeOne = memberships.find((m: any) => {
+          const startDate = new Date(m.start_date);
+          const endDate = new Date(m.end_date);
+          return startDate <= now && endDate > now;
+        });
+
+        if (!activeOne) {
+          // No active membership, find the first queued one and activate it
+          const firstQueued = memberships
+            .filter((m: any) => new Date(m.start_date) <= now)
+            .sort((a: any, b: any) =>
+              new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+            )[0];
+
+          if (firstQueued) {
+            console.log(`[PAYMENT] Activating queued membership ${firstQueued.id}`);
+            await supabase
+              .from("user_memberships")
+              .update({ is_active: true })
+              .eq("id", firstQueued.id);
+          }
+        }
+      }
+
+      console.log(`[PAYMENT] ✅ Completed activateQueuedMemberships for user ${userId}`);
+    } catch (error) {
+      console.error(`[PAYMENT] Error in activateQueuedMemberships:`, error);
+    }
+  },
 };
