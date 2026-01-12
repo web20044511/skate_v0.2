@@ -331,15 +331,15 @@ export const userMembershipService = {
       .from("user_memberships")
       .select(`
         *,
-        membership:membership_id(*),
-        profile:user_id(id, email, full_name, avatar_url, created_at)
+        memberships:membership_id(*),
+        profiles:user_id(id, email, full_name, avatar_url, created_at)
       `)
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data || []).map((item: any) => ({
       ...item,
-      membership: item.membership || null,
-      profile: item.profile || null,
+      memberships: item.memberships || null,
+      profiles: item.profiles || null,
     })) as any[];
   },
 
@@ -349,8 +349,8 @@ export const userMembershipService = {
       .from("user_memberships")
       .select(`
         *,
-        membership:membership_id(*),
-        profile:user_id(id, email, full_name, avatar_url, created_at)
+        memberships:membership_id(*),
+        profiles:user_id(id, email, full_name, avatar_url, created_at)
       `)
       .eq("is_active", true)
       .gte("end_date", now)
@@ -358,8 +358,8 @@ export const userMembershipService = {
     if (error) throw error;
     return (data || []).map((item: any) => ({
       ...item,
-      membership: item.membership || null,
-      profile: item.profile || null,
+      memberships: item.memberships || null,
+      profiles: item.profiles || null,
     })) as any[];
   },
 };
