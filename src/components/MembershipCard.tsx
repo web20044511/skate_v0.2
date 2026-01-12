@@ -5,7 +5,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 interface MembershipCardProps {
-  userMembership: UserMembership & { membership: Membership | null };
+  userMembership: (UserMembership & { membership: Membership | null }) & {
+    status?: "active" | "expired" | "pending" | "queued";
+    queuePosition?: number | null;
+    nextActivationDate?: string | null;
+  };
   onRenew?: () => void;
   onManage?: () => void;
 }
