@@ -35,6 +35,9 @@ export default function Orders() {
     try {
       setIsLoading(true);
       if (user?.id) {
+        // First, activate any queued memberships that are ready
+        await paymentService.activateQueuedMemberships(user.id);
+
         const [ordersData, membershipsData] = await Promise.all([
           orderService.getByUserId(user.id),
           userMembershipService.getUserMembershipsWithQueue(user.id),
