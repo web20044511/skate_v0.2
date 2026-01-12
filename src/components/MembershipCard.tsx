@@ -428,7 +428,7 @@ const MembershipCard = ({
             {!isActive && !isQueued && onRenew && (
               <Button
                 size="sm"
-                className="col-span-2 gap-1 sm:gap-2 text-xs sm:text-sm bg-gradient-to-r transition-all duration-300"
+                className="col-span-2 gap-1 sm:gap-2 text-xs sm:text-sm bg-gradient-to-r transition-all duration-300 text-black"
                 style={{
                   backgroundImage: `linear-gradient(135deg, ${color}, ${color}dd)`,
                 }}
