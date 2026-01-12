@@ -208,12 +208,15 @@ const MembershipCard = ({
               ) : isQueued ? (
                 <div>
                   <p className="text-lg sm:text-2xl font-bold text-blue-600">
-                    Queue #{userMembership.queuePosition || "?"}
+                    {daysUntilActivation && daysUntilActivation > 0
+                      ? daysUntilActivation
+                      : "Soon"
+                    }
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     {daysUntilActivation && daysUntilActivation > 0
-                      ? `Activates in ${daysUntilActivation} days`
-                      : "Will activate soon"
+                      ? "days to activate"
+                      : "activates soon"
                     }
                   </p>
                 </div>
