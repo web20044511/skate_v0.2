@@ -192,7 +192,7 @@ export default function AdminSubscribers() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard
             title="Total Subscribers"
             value={subscribers.length}
@@ -203,6 +203,11 @@ export default function AdminSubscribers() {
             value={activeCount}
             icon={CheckCircle}
             trend={`${((activeCount / subscribers.length) * 100 || 0).toFixed(0)}% active`}
+          />
+          <StatCard
+            title="Queued Subscriptions"
+            value={queuedCount}
+            icon={Clock}
           />
           <StatCard
             title="Expired Subscriptions"
