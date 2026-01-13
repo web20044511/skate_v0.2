@@ -162,9 +162,12 @@ export default function AdminSubscribers() {
     </Card>
   );
 
-  const activeCount = subscribers.filter((sub) => isSubscriptionActive(sub))
+  const activeCount = subscribers.filter((sub) => getSubscriptionStatus(sub) === "active")
     .length;
-  const expiredCount = subscribers.length - activeCount;
+  const expiredCount = subscribers.filter((sub) => getSubscriptionStatus(sub) === "expired")
+    .length;
+  const queuedCount = subscribers.filter((sub) => getSubscriptionStatus(sub) === "queued")
+    .length;
 
   if (isLoading) {
     return (
