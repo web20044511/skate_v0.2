@@ -55,9 +55,9 @@ export default function AdminSubscribers() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "expired">(
-    "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "expired" | "queued"
+  >("all");
 
   useEffect(() => {
     loadSubscribers();
