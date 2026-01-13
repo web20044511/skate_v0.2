@@ -55,9 +55,9 @@ export default function AdminSubscribers() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "expired">(
-    "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "expired" | "queued"
+  >("all");
 
   useEffect(() => {
     loadSubscribers();
@@ -80,18 +80,34 @@ export default function AdminSubscribers() {
     }
   };
 
+  const getSubscriptionStatus = (
+    subscriber: Subscriber
+  ): "queued" | "active" | "expired" => {
+    const now = new Date();
+    const startDate = new Date(subscriber.start_date);
+    const endDate = new Date(subscriber.end_date);
+
+    // Queued: start date is in the future
+    if (startDate > now) {
+      return "queued";
+    }
+    // Active: start date is in the past and end date is in the future
+    else if (endDate > now) {
+      return "active";
+    }
+    // Expired: end date is in the past or today
+    else {
+      return "expired";
+    }
+  };
+
   const filterSubscribers = () => {
     let filtered = [...subscribers];
 
     // Apply status filter
-    const now = new Date();
-    if (statusFilter === "active") {
+    if (statusFilter !== "all") {
       filtered = filtered.filter(
-        (sub) => sub.is_active && new Date(sub.end_date) > now
-      );
-    } else if (statusFilter === "expired") {
-      filtered = filtered.filter(
-        (sub) => !sub.is_active || new Date(sub.end_date) <= now
+        (sub) => getSubscriptionStatus(sub) === statusFilter
       );
     }
 
@@ -118,7 +134,7 @@ export default function AdminSubscribers() {
   };
 
   const isSubscriptionActive = (subscriber: Subscriber) => {
-    return subscriber.is_active && calculateDaysRemaining(subscriber.end_date) > 0;
+    return getSubscriptionStatus(subscriber) === "active";
   };
 
   const StatCard = ({
@@ -146,9 +162,12 @@ export default function AdminSubscribers() {
     </Card>
   );
 
-  const activeCount = subscribers.filter((sub) => isSubscriptionActive(sub))
+  const activeCount = subscribers.filter((sub) => getSubscriptionStatus(sub) === "active")
     .length;
-  const expiredCount = subscribers.length - activeCount;
+  const expiredCount = subscribers.filter((sub) => getSubscriptionStatus(sub) === "expired")
+    .length;
+  const queuedCount = subscribers.filter((sub) => getSubscriptionStatus(sub) === "queued")
+    .length;
 
   if (isLoading) {
     return (
@@ -173,7 +192,7 @@ export default function AdminSubscribers() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard
             title="Total Subscribers"
             value={subscribers.length}
@@ -184,6 +203,11 @@ export default function AdminSubscribers() {
             value={activeCount}
             icon={CheckCircle}
             trend={`${((activeCount / subscribers.length) * 100 || 0).toFixed(0)}% active`}
+          />
+          <StatCard
+            title="Queued Subscriptions"
+            value={queuedCount}
+            icon={Clock}
           />
           <StatCard
             title="Expired Subscriptions"
@@ -217,11 +241,12 @@ export default function AdminSubscribers() {
               <select
                 value={statusFilter}
                 onChange={(e) =>
-                  setStatusFilter(e.target.value as "all" | "active" | "expired")
+                  setStatusFilter(e.target.value as "all" | "active" | "expired" | "queued")
                 }
                 className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Status</option>
+                <option value="queued">Queued Only</option>
                 <option value="active">Active Only</option>
                 <option value="expired">Expired Only</option>
               </select>
@@ -316,21 +341,38 @@ export default function AdminSubscribers() {
                           {/* Status Badge */}
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-2">
-                              {isActive ? (
-                                <>
-                                  <CheckCircle className="w-4 h-4 text-green-600" />
-                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Active
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <AlertCircle className="w-4 h-4 text-red-600" />
-                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    Expired
-                                  </span>
-                                </>
-                              )}
+                              {(() => {
+                                const status = getSubscriptionStatus(subscriber);
+                                switch (status) {
+                                  case "queued":
+                                    return (
+                                      <>
+                                        <Clock className="w-4 h-4 text-blue-600" />
+                                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                          Queued
+                                        </span>
+                                      </>
+                                    );
+                                  case "active":
+                                    return (
+                                      <>
+                                        <CheckCircle className="w-4 h-4 text-green-600" />
+                                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                          Active
+                                        </span>
+                                      </>
+                                    );
+                                  case "expired":
+                                    return (
+                                      <>
+                                        <AlertCircle className="w-4 h-4 text-red-600" />
+                                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                          Expired
+                                        </span>
+                                      </>
+                                    );
+                                }
+                              })()}
                             </div>
                           </td>
 
