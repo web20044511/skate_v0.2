@@ -134,7 +134,7 @@ export default function AdminSubscribers() {
   };
 
   const isSubscriptionActive = (subscriber: Subscriber) => {
-    return subscriber.is_active && calculateDaysRemaining(subscriber.end_date) > 0;
+    return getSubscriptionStatus(subscriber) === "active";
   };
 
   const StatCard = ({
