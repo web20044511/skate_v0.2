@@ -241,11 +241,12 @@ export default function AdminSubscribers() {
               <select
                 value={statusFilter}
                 onChange={(e) =>
-                  setStatusFilter(e.target.value as "all" | "active" | "expired")
+                  setStatusFilter(e.target.value as "all" | "active" | "expired" | "queued")
                 }
                 className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Status</option>
+                <option value="queued">Queued Only</option>
                 <option value="active">Active Only</option>
                 <option value="expired">Expired Only</option>
               </select>
