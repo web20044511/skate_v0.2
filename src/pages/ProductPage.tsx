@@ -227,18 +227,24 @@ const ProductPage = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 w-full">
               <Button
                 variant="gold"
                 size="xl"
-                className="flex-1"
+                className="flex-1 w-full sm:w-auto"
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="w-5 h-5" />
-                Add to Cart
+                <span className="hidden sm:inline">Add to Cart</span>
+                <span className="sm:hidden">Add Cart</span>
               </Button>
-              <Button variant="outline" size="xl">
+              <Button
+                variant="outline"
+                size="xl"
+                className="flex-1 sm:flex-none w-full sm:w-auto sm:px-6"
+              >
                 <Heart className="w-5 h-5" />
+                <span className="hidden sm:inline">Save</span>
               </Button>
             </div>
 
